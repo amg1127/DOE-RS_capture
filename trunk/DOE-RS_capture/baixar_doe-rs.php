@@ -3,7 +3,7 @@
 
 define ('MIMETYPE_PDF', "application/pdf");
 
-// Login e senha do site da CORAG => http://www.corag.rs.gov.br/
+// Login e senha do site da CORAG => http://www.corag.com.br/
 $login = "";
 $senha = "";
 
@@ -109,20 +109,61 @@ function baixa_arquivo ($url, $postdata = false, $dont_read = false) {
 }
 
 # Abrir a pagina inicial da CORAG
-$saida = baixa_arquivo ("http://www.corag.rs.gov.br/");
+$saida = baixa_arquivo ("http://www.corag.com.br/");
 if (empty ($saida)) {
     morre ("A pagina inicial da CORAG esta em branco!");
 }
 
+# Abrir a pagina de login da CORAG
+$saida = baixa_arquivo ("http://www.corag.com.br/index.php?option=com_user&view=login&lang=en");
+if (empty ($saida)) {
+    morre ("A pagina de login da CORAG esta em branco!");
+}
+
+# Pegar campos ocultos do formulario de login
+$logindom = new DOMDocument ("1.0", "utf-8");
+$logindom->validateOnParse = true;
+$logindom->recover = true;
+$logindom->strictErrorChecking = false;
+if (! $logindom->loadHTML ($saida)) {
+    morre ("Impossivel analisar HTML da pagina de login da CORAG!");
+}
+$formul = $logindom->getElementById ("login");
+if ($formul == null) {
+    morre ("Impossivel localizar formulario de login da pagina da CORAG!");
+}
+$inputelements = $formul->getElementsByTagName ("input");
+$submitotherdata = "&submit=Login";
+for ($i = 0; $i < $inputelements->length; $i++) {
+    $inputelement = $inputelements->item ($i);
+    $eltype = $inputelement->attributes->getNamedItem ("type");
+    if ($eltype != null) {
+        if (strtolower (trim ($eltype->nodeValue)) == "hidden") {
+            $elname = $inputelement->attributes->getNamedItem ("name");
+            $elval = $inputelement->attributes->getNamedItem ("value");
+            if ($elname != null && $elval != null) {
+                if (! (empty ($elname->nodeValue) || empty ($elval->nodeValue))) {
+                    $submitotherdata .= "&" . $elname->nodeValue . "=" . urlencode ($elval->nodeValue);
+                }
+            }
+        }
+    }
+}
+
 # Efetuar login na pagina da CORAG
-$saida = baixa_arquivo ("http://www.corag.rs.gov.br/logonsn.php", "edtUsuario=" . urlencode ($login) . "&edtSenha=" . urlencode ($senha) . "&btnLogar=Acessar");
-if (! preg_match ("/<meta\\s+http-equiv=['\"]?refresh\\s*['\"]?\\s+content=['\"]?0\\s*;\\s*URL=\\/diario\\/diario\\.php\\s*['\"]?\\s*>/is", $saida)) {
+$saida = baixa_arquivo ("http://www.corag.com.br/index.php?option=com_user&lang=en", "username=" . urlencode ($login) . "&passwd=" . urlencode ($senha) . $submitotherdata);
+if (! preg_match ("/<span>Logout<\\/span>/is", $saida)) {
     morre ("Login falhou!\n");
 }
-$saida = baixa_arquivo ("http://www.corag.rs.gov.br/diario/diario.php");
-if (! preg_match ("/<a\\s+href=['\"]?\\.\\/jornal\\.php\\?jornal=doe['\"]?[^>]*>\\s*Di(&aacute;|a|á)rio\\s+Oficial\\s+do\\s+RS\\s*<\\/a>/is", $saida)) {
+
+morre ("Ainda parcial!");
+
+$saida = baixa_arquivo ("http://www.corag.com.br/index.php?option=com_jornal&view=jornais&Itemid=119&lang=en");
+if (! preg_match ("/<a\\s+href=['\"]?index\\.php\\?option=com_jornal&[^>'\"]+['\"]?[^>]*>\\s*Di(&aacute;|a|á)rio\\s+Oficial\\s+do\\s+RS\\s*<\\/a>/is", $saida)) {
     morre ("Impossivel encontrar diario oficial do estado!");
 }
+
+morre ("Ainda parcial!");
 
 # Acessar a pagina onde esta o DOE
 $saida = baixa_arquivo ("http://www.corag.rs.gov.br/diario/jornal.php?jornal=doe");
