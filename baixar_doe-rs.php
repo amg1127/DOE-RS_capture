@@ -170,7 +170,7 @@ if (count (explode ("&amp;", $urlbasedoers)) > 1) {
 $urlbasedoers = "http://www.corag.com.br" . $urlbasedoers;
 
 $saida = baixa_arquivo ($urlbasedoers);
-if (! (stripos ($saida, "Diário Oficial do RS") && strpos ($saida, "Sumário da edição de"))) {
+if (! (stripos ($saida, "Diário Oficial do RS") && (strpos ($saida, "Sumário da edição de") || strpos ($saida, "Não existe publicação na data de")))) {
     morre ("Falha ao identificar pagina do Diario Oficial do RS");
 }
 
