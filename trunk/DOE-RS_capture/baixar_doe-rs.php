@@ -19,7 +19,7 @@ $maxtents = 5;
 $datas_baixar_doe = array ();
 if ($_SERVER['argc'] < 2) {
     aviso ("Nenhuma data de DOE foi especificada. Tentando baixar o de hoje...");
-    $datas_baixar_doe[] = date ('d/m/Y');
+    $datas_baixar_doe[] = date ('Y-m-d');
 } else {
     for ($i = 1; $i < $_SERVER['argc']; $i++) {
         if (preg_match ("/^(\\d\\d)\\s*\\/\\s*(\\d\\d)\\s*\\/\\s*(\\d\\d\\d\\d)\$/", trim ($_SERVER['argv'][$i]), $matches)) {
