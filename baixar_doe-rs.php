@@ -2,6 +2,7 @@
 <?php
 
 define ('MIMETYPE_PDF', "application/pdf");
+define ('DEBUG_MODE', (! empty (getenv ('DEBUG_MODE'))));
 
 // Login e senha do site da CORAG => http://www.corag.com.br/
 $login = "";
@@ -13,7 +14,7 @@ $output_file = $mydir . '/tempfile.txt';
 $pages_dir = $mydir . '/.doe_pages';
 $pagenotfound_file = $mydir . '/page-not-found.pdf';
 
-$wget = "wget -q --referer=\"Mozilla/5.0 (Windows; U; Windows NT 5.1; pt-BR; rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3\" --load-cookies " . escapeshellarg ($cookie_file) . " --save-cookies " . escapeshellarg ($cookie_file) . " --keep-session-cookies --tries=1 --timeout=30 -O " . escapeshellarg ($output_file);
+$wget = "wget " . ((DEBUG_MODE) ? '' : '-q ') . "--referer=\"Mozilla/5.0 (Windows; U; Windows NT 5.1; pt-BR; rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3\" --load-cookies " . escapeshellarg ($cookie_file) . " --save-cookies " . escapeshellarg ($cookie_file) . " --keep-session-cookies --tries=1 --timeout=30 -O " . escapeshellarg ($output_file);
 $maxtents = 5;
 
 $datas_baixar_doe = array ();
@@ -290,7 +291,7 @@ foreach ($datas_baixar_doe as $data_doe) {
                 $pdfjoin_args .= ' ' . escapeshellarg ($pagenotfound_file);
             }
         }
-        $pdfjoin_cmd = "pdfjoin --outfile " . escapeshellarg ($doe_output_file) . $pdfjoin_args;
+        $pdfjoin_cmd = "pdfjoin " . ((DEBUG_MODE) ? '--no-tidy ' : '') . "--outfile " . escapeshellarg ($doe_output_file) . $pdfjoin_args;
         executa_comando ($pdfjoin_cmd);
     }
 }
