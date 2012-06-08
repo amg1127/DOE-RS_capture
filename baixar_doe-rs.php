@@ -2,7 +2,8 @@
 <?php
 
 define ('MIMETYPE_PDF', "application/pdf");
-define ('DEBUG_MODE', (! empty (getenv ('DEBUG_MODE'))));
+$test = getenv ('DEBUG_MODE');
+define ('DEBUG_MODE', (! empty ($test)));
 
 // Login e senha do site da CORAG => http://www.corag.com.br/
 $login = "";
