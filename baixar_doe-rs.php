@@ -277,6 +277,10 @@ foreach ($datas_baixar_doe as $data_doe) {
                     }
                 }
                 if (testa_mimetype ($output_file, MIMETYPE_PDF)) {
+                    passthru ("pdftotext " . escapeshellarg ($output_file) . " /dev/null", $retvar);
+                    if ($retvar) {
+                        morre ("Pagina " . $pgs[$pg_n][1] . " do DOE de '" . $data_doe . "' esta corrompida ou nao foi baixada corretamente!");
+                    }
                     if (! copy ($output_file, $n_fn)) {
                         morre ("Impossivel salvar pagina '" . $pgs[$pg_n][1] . "' do DOE de '" . $data_doe . "' no computador!");
                     }
