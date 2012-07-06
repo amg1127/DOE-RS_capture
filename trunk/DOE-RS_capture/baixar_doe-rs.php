@@ -62,6 +62,7 @@ function testa_mimetype ($fpath, $mime = false) {
 
 function remove_temporarios () {
     global $cookie_file, $output_file;
+    if (DEBUG_MODE) return;
     unlink ($cookie_file);
     unlink ($output_file);
 }
@@ -98,6 +99,9 @@ function baixa_arquivo ($url, $postdata = false, $dont_read = false) {
     $referer = $url;
     if (! empty ($postdata)) {
         $cmd .= " --post-data " . escapeshellarg ($postdata);
+    }
+    if (file_exists ($output_file)) {
+        unlink ($output_file);
     }
     executa_comando ($cmd . " " . escapeshellarg ($url));
     if ($dont_read) {
